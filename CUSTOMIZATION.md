@@ -108,7 +108,7 @@ The folder name is the URL: `src/content/blog/building-tools-that-disappear/` be
 ```yaml
 ---
 title: "Building tools that disappear"
-excerpt: "The best software for thinking gets out of the way."
+description: "The best software for thinking gets out of the way."
 date: 2026-04-30
 updated: 2026-05-02
 category: "engineering"
@@ -130,7 +130,7 @@ draft: false
 | Field            | Notes                                                                                         |
 | ---------------- | --------------------------------------------------------------------------------------------- |
 | `title`          | Required. The headline, the `<title>`, and the card and search title                          |
-| `excerpt`        | Required. The standfirst, the card text, the meta description, the feed item, and searched    |
+| `description`        | Required. The standfirst, the card text, the meta description, the feed item, and searched    |
 | `date`           | Required. The publication date; posts are listed newest first                                 |
 | `updated`        | Shown as "Updated" in the byline and used as `dateModified` in the JSON-LD                    |
 | `category`       | Required. A section slug from `src/config/taxonomy.ts`                                        |
@@ -191,9 +191,9 @@ The header sits transparent at the top of every page and turns solid once the pa
 
 The search palette is [src/components/chrome/SearchDialog.astro](./src/components/chrome/SearchDialog.astro), included on every page by `BaseLayout.astro`. It opens with the search button in the header, `Ctrl/⌘ + K`, or `/` when the cursor is not in a text field. Any element with a `data-search-open` attribute opens it too, like the "Search the archive" button on the 404 page. Without JavaScript the header button is a plain link to the archive.
 
-- The index is `/search-index.json`, built from [src/pages/search-index.json.ts](./src/pages/search-index.json.ts). It holds each published post's title, excerpt, section, tags, author, and date, not the full text, so it stays small. It is fetched the first time the palette opens, or as soon as a reader hovers or focuses a search button.
+- The index is `/search-index.json`, built from [src/pages/search-index.json.ts](./src/pages/search-index.json.ts). It holds each published post's title, description, section, tags, author, and date, not the full text, so it stays small. It is fetched the first time the palette opens, or as soon as a reader hovers or focuses a search button.
 - Before the first keystroke the palette lists the five most recent posts.
-- Every word in the query must match somewhere. A word in the title scores 8, in the section or tags 4, in the author's name 2, and in the excerpt 1; the whole query in the title adds 4. Ties go to the newer post, and the top eight are shown. Matching ignores case and accents.
+- Every word in the query must match somewhere. A word in the title scores 8, in the section or tags 4, in the author's name 2, and in the description 1; the whole query in the title adds 4. Ties go to the newer post, and the top eight are shown. Matching ignores case and accents.
 - The last row, "Search the archive for …", opens the archive with the query filled in.
 - Arrow keys move through the results, `Enter` opens one, and `Escape` or a click on the backdrop closes the palette and returns focus to whatever opened it.
 
@@ -203,7 +203,7 @@ The search palette is [src/components/chrome/SearchDialog.astro](./src/component
 
 [src/pages/blog/index.astro](./src/pages/blog/index.astro) renders every published post as a grid of cards, newest first, then filters it in the browser. Three controls combine in the toolbar above the grid: a search field, a **Section** menu, and a **Tag** menu.
 
-- The search field filters as you type, matching titles, excerpts, sections, tags, and author names. Every word must appear. The text it matches is the card's `data-search` attribute, built in [src/components/blog/PostCard.astro](./src/components/blog/PostCard.astro).
+- The search field filters as you type, matching titles, descriptions, sections, tags, and author names. Every word must appear. The text it matches is the card's `data-search` attribute, built in [src/components/blog/PostCard.astro](./src/components/blog/PostCard.astro).
 - Each menu is a native `<details>` element. One opens at a time, and it closes on a selection, a click outside, or `Escape`, which returns focus to the pill.
 - Each option shows how many posts it would return given the other active filters and the query. Options that would return nothing are dimmed, and options with no published post behind them are left out at build time.
 - Every option is a real link to its section or tag page, so without JavaScript the menus still work as navigation and the whole list is shown.
@@ -224,7 +224,7 @@ To add another filter, such as author:
 
 [src/pages/blog/[slug].astro](./src/pages/blog/[slug].astro) assembles the reading page from the frontmatter:
 
-- **The header** has breadcrumbs, the title, the excerpt as a standfirst, the author's portrait, name, and role, the date, the updated date, and the reading time.
+- **The header** has breadcrumbs, the title, the description as a standfirst, the author's portrait, name, and role, the date, the updated date, and the reading time.
 - **The lead image** is the `thumbnail` at 16:9, wider than the text, with the `imageCredit` caption under it.
 - **The reading column** is set in Newsreader, about 42rem wide.
 - **On this page** lists the body's `##` and `###` headings in a rail from `80rem`, and highlights the one being read. It appears when a post has at least two headings. Change the filter in [src/components/blog/TableOfContents.astro](./src/components/blog/TableOfContents.astro) to include `####`.
@@ -407,7 +407,7 @@ Page headers rise in on load: add `rise` to an element to opt it in, and `style=
 | `structuredData` | The page's JSON-LD; pages without it get the `WebSite` schema          |
 
 - Every page has a canonical URL, Open Graph and Twitter/X tags, and JSON-LD. The schemas are built with the helpers in [src/lib/schema.ts](./src/lib/schema.ts): `WebSite` with a `SearchAction` on the homepage, `BlogPosting` on articles, `CollectionPage` on the archive and the section, tag, and contributor pages, `ProfilePage` on author pages, and `AboutPage` and `ContactPage`. Every page below the homepage adds a `BreadcrumbList` matching its visible breadcrumbs.
-- `/rss.xml` lists every published post, newest first, with its excerpt, author, and section.
+- `/rss.xml` lists every published post, newest first, with its description, author, and section.
 - `/sitemap-index.xml` is generated by `@astrojs/sitemap`, and `/robots.txt` points to it.
 
 ## Deployment

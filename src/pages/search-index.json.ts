@@ -11,7 +11,7 @@ import {
 
 export interface SearchEntry {
   title: string;
-  excerpt: string;
+  description: string;
   url: string;
   category: string;
   tags: string[];
@@ -26,7 +26,7 @@ export const GET: APIRoute = async () => {
   const posts = await getPosts();
   const index: SearchEntry[] = posts.map((post) => ({
     title: post.title,
-    excerpt: post.excerpt,
+    description: post.description,
     url: postUrl(post),
     category: getCategory(post.category)?.name ?? post.category,
     tags: post.tags.map((slug) => getTag(slug)?.name ?? slug),

@@ -28,6 +28,7 @@ import {
   type Post,
 } from "@/lib/posts";
 import { absolute, withBreadcrumbs, type Crumb } from "@/lib/schema";
+import COVER from "~/cover.jpg";
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -46,7 +47,7 @@ const related = await getRelatedPosts(post);
 const { newer, older } = await getAdjacentPosts(post);
 const url = absolute(postUrl(post));
 const card = await getImage({
-  src: post.thumbnail,
+  src: post.thumbnail || COVER,
   width: 1200,
   height: 630,
   fit: "cover",
@@ -65,9 +66,9 @@ const schema = withBreadcrumbs(
   {
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.excerpt,
-    datePublished: post.date.toISOString(),
-    dateModified: (post.updated ?? post.date).toISOString(),
+    description: post.description,
+    datePublished: post.date?.toISOString(),
+    dateModified: (post.updated ?? post.date)?.toISOString(),
     url,
     mainEntityOfPage: post.canonical ?? url,
     inLanguage: siteConfig.language,
@@ -86,8 +87,8 @@ const schema = withBreadcrumbs(
 
 <BaseLayout
   title={post.seoTitle ?? post.title}
-  description={post.seoDescription ?? post.excerpt}
-  image={post.thumbnail}
+  description={post.seoDescription ?? post.description}
+  image={post.thumbnail || COVER}
   imageAlt={post.thumbnailAlt}
   type="article"
   canonical={post.canonical}
@@ -110,7 +111,7 @@ const schema = withBreadcrumbs(
           {post.title}
         </h1>
         <p class="rise mt-6 max-w-2xl text-lead text-body" style="--rise-order: 2">
-          {post.excerpt}
+          {post.description}
         </p>
         <div class="rise mt-9 flex flex-col items-center gap-4" style="--rise-order: 3">
           {author && (
@@ -151,8 +152,8 @@ const schema = withBreadcrumbs(
     <figure class="shell max-w-[calc(66rem+2*var(--gutter))]">
       <div class="media shadow-[var(--shadow-card)]">
         <Image
-          src={post.thumbnail}
-          alt={post.thumbnailAlt}
+          src={post.thumbnail || COVER}
+          alt={post.thumbnailAlt || "Tổ Sư Thiền"}
           widths={[640, 960, 1280, 1600]}
           sizes="(min-width: 70rem) 66rem, 94vw"
           quality={72}

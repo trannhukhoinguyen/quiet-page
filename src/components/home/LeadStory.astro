@@ -11,6 +11,7 @@ import {
   postUrl,
   type Post,
 } from "@/lib/posts";
+import COVER from "~/cover.jpg";
 
 interface Props {
   post: Post;
@@ -25,7 +26,7 @@ const category = getCategory(post.category);
   <article class="group relative grid items-center gap-8 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
     <div class="media aspect-[4/3] shadow-[var(--shadow-card)]">
       <Image
-        src={post.thumbnail}
+        src={post.thumbnail || COVER}
         alt=""
         widths={[480, 720, 960, 1280]}
         sizes="(min-width: 64rem) 40rem, 92vw"
@@ -46,7 +47,7 @@ const category = getCategory(post.category);
           {post.title}
         </a>
       </h2>
-      <p class="mt-5 text-lead text-body">{post.excerpt}</p>
+      <p class="mt-5 text-lead text-body">{post.description}</p>
       <div class="mt-8 flex flex-wrap items-center justify-between gap-6">
         {author && (
           <div class="flex items-center gap-3">

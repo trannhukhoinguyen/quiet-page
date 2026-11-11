@@ -229,7 +229,7 @@ Accessibility is a completion requirement, not a follow-up.
 - Make common customization possible without editing many unrelated files.
 - Use realistic, clearly replaceable demo content. Do not publish lorem ipsum,
   broken links, fake testimonials presented as real, or invalid structured data.
-- Keep dates, authors, taxonomies, excerpts, and archive behavior consistent.
+- Keep dates, authors, taxonomies, descriptions, and archive behavior consistent.
 - Document any new configuration, environment variable, content field, or
   integration in the README or the nearest relevant documentation.
 

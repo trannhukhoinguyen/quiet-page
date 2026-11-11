@@ -248,14 +248,14 @@ import Icon from "@/components/ui/Icon.astro";
     font-size: 0.8125rem;
   }
 
-  .search-dialog :global(.search-excerpt),
+  .search-dialog :global(.search-description),
   .search-dialog :global(.search-archive) {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
 
-  .search-dialog :global(.search-excerpt) {
+  .search-dialog :global(.search-description) {
     margin-top: 0.125rem;
     font-size: 0.875rem;
     color: var(--body);
@@ -298,7 +298,7 @@ import Icon from "@/components/ui/Icon.astro";
 <script>
   interface Entry {
     title: string;
-    excerpt: string;
+    description: string;
     url: string;
     category: string;
     tags: string[];
@@ -313,7 +313,7 @@ import Icon from "@/components/ui/Icon.astro";
     title: string;
     terms: string;
     author: string;
-    excerpt: string;
+    description: string;
   }
 
   const MAX_RESULTS = 8;
@@ -422,7 +422,7 @@ import Icon from "@/components/ui/Icon.astro";
             title: fold(entry.title),
             terms: fold([entry.category, ...entry.tags].join(" ")),
             author: fold(entry.author),
-            excerpt: fold(entry.excerpt),
+            description: fold(entry.description),
           }));
         })
         .catch(() => {
@@ -446,7 +446,7 @@ import Icon from "@/components/ui/Icon.astro";
               ? 4
               : item.author.includes(word)
                 ? 2
-                : item.excerpt.includes(word)
+                : item.description.includes(word)
                   ? 1
                   : 0;
           // Every word must match somewhere.
@@ -543,9 +543,9 @@ import Icon from "@/components/ui/Icon.astro";
         for (const entry of results) {
           const title = el("span", "search-title");
           title.append(highlight(entry.title, words));
-          const excerpt = el("span", "search-excerpt");
-          excerpt.append(highlight(entry.excerpt, words, true));
-          rows.push(row(entry.url, [title, meta(entry), excerpt]));
+          const description = el("span", "search-description");
+          description.append(highlight(entry.description, words, true));
+          rows.push(row(entry.url, [title, meta(entry), description]));
         }
         rows.push(archiveRow(query));
         if (!results.length) note = `Nothing here matches “${query}”.`;

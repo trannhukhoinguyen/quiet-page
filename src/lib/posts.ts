@@ -9,7 +9,7 @@ export type Post = CollectionEntry<"blog">["data"] & {
   readingTime: number;
 };
 
-const estimateReadingTime = (text = "") => {
+export const estimateReadingTime = (text = "") => {
   const words = text
     .replace(/```[\s\S]*?```/g, " ")
     .replace(/<[^>]+>/g, " ")
@@ -30,9 +30,8 @@ let cache: Post[] | undefined;
 /** Published posts, newest first. Drafts never leave this function. */
 export const getPosts = async (): Promise<Post[]> => {
   if (!cache) {
-    cache = (await getCollection("blog", ({ data }) => !data.draft))
-      .map(toPost)
-      .sort((a, b) => b.date.valueOf() - a.date.valueOf());
+    cache = (await getCollection("blog", ({ data }) => !data.draft)).map(toPost);
+    // .sort((a, b) => b.date.valueOf() - a.date.valueOf());
   }
   return cache;
 };
@@ -78,9 +77,9 @@ export const countBy = (posts: Post[], key: "category" | "author") =>
   }, {});
 
 export const formatDate = (date: Date, month: "long" | "short" = "long") =>
-  date.toLocaleDateString(siteConfig.dateLocale, { year: "numeric", month, day: "numeric" });
+  date?.toLocaleDateString(siteConfig.dateLocale, { year: "numeric", month, day: "numeric" });
 
-export const isoDate = (date: Date) => date.toISOString().slice(0, 10);
+export const isoDate = (date: Date) => date?.toISOString()?.slice(0, 10);
 
 export const plural = (count: number, one: string, many = `${one}s`) =>
   `${count} ${count === 1 ? one : many}`;

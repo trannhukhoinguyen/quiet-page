@@ -1,0 +1,17 @@
+[
+  {
+    "languageName": "🇺🇸 English",
+    "languageCode": "en",
+    "contentDir": "en"
+  },
+  {
+    "languageName": "🇨🇳 中文",
+    "languageCode": "zh",
+    "contentDir": "zh"
+  },
+  {
+    "languageName": "🇻🇳 Tiếng Việt",
+    "languageCode": "vi",
+    "contentDir": "vi"
+  }
+]

@@ -1,0 +1,42 @@
+const InMasterDb = [
+  {
+    id: '32.101.1.V',
+    name_en: 'Zhongshan Faxian',
+    name_ja: 'Shūszen Hōken',
+    name_zh: '眾善法賢',
+    other_name_zh: '众善法贤',
+    name_vi: 'Chúng Thiện Pháp Hiền',
+    other_name_vi: '',
+    birth_death_time: ['?', '626'],
+    epoch: '',
+    records: '...',
+    sect: [],
+    country: '🇻🇳',
+    place: '',
+    teachers: ['Vinitaruci'],
+    disciples: [],
+    image: '/images/buddha-zen-circle-with-unknown-zen-master.avif',
+    reference: [''],
+  },
+  {
+    id: '88.101.2.V',
+
+    name_en: 'Weili Juekai',
+    name_ja: 'Weili Juekai',
+    name_zh: '釋惟力 覺開',
+    name_vi: 'Duy Lực Giác Khai',
+    other_name_vi: 'Thích Duy Lực',
+    birth_death_time: ['1923', '2000'],
+    epoch: '',
+    records: '...',
+    sect: [],
+    country: '🇻🇳',
+    place: '',
+    teachers: ['Thích Hoằng Tu', 'Diệu Duyên'],
+    disciples: [],
+    image: '/images/buddha-zen-circle-with-unknown-zen-master.avif',
+    reference: ['https://vi.wikipedia.org/wiki/Th%C3%ADch_Duy_L%E1%BB%B1c'],
+  },
+
+]
+export default InMasterDb;

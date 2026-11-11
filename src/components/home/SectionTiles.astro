@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import Icon from "@/components/ui/Icon.astro";
 import { categories } from "@/config/taxonomy";
 import { categoryUrl, plural, type Post } from "@/lib/posts";
+import COVER from "~/cover.jpg";
 
 interface Props {
   posts: Post[];
@@ -16,7 +17,7 @@ const { posts, title, lead } = Astro.props;
 const sections = categories
   .map((category) => {
     const inSection = posts.filter((post) => post.category === category.slug);
-    return { ...category, count: inSection.length, cover: inSection[0]?.thumbnail };
+    return { ...category, count: inSection.length, cover: inSection[0]?.thumbnail || COVER };
   })
   .filter((section) => section.count > 0);
 ---

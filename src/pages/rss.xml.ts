@@ -13,7 +13,7 @@ export async function GET(context: APIContext) {
     customData: `<language>${siteConfig.language}</language>`,
     items: posts.map((post) => ({
       title: post.title,
-      description: post.excerpt,
+      description: post.description,
       link: postUrl(post),
       pubDate: post.date,
       customData: `<dc:creator><![CDATA[${getAuthor(post.author)?.name ?? siteConfig.name}]]></dc:creator>`,

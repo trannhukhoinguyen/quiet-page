@@ -11,6 +11,7 @@ import {
   postUrl,
   type Post,
 } from "@/lib/posts";
+import COVER from "~/cover.jpg";
 
 interface Props {
   post: Post;
@@ -26,7 +27,7 @@ const author = getAuthor(post.author);
 const category = getCategory(post.category);
 const searchable = [
   post.title,
-  post.excerpt,
+  post.description,
   category?.name,
   author?.name,
   ...post.tags.map((tag) => getTag(tag)?.name),
@@ -46,7 +47,7 @@ const searchable = [
 >
   <div class="media aspect-[3/2]">
     <Image
-      src={post.thumbnail}
+      src={post.thumbnail || COVER}
       alt=""
       widths={[400, 640, 880]}
       sizes="(min-width: 64rem) 24rem, (min-width: 40rem) 45vw, 92vw"
@@ -67,7 +68,7 @@ const searchable = [
       {post.title}
     </a>
   </Heading>
-  <p class="mt-3 line-clamp-2 text-[0.9375rem] leading-relaxed text-muted">{post.excerpt}</p>
+  <p class="mt-3 line-clamp-2 text-[0.9375rem] leading-relaxed text-muted">{post.description}</p>
   {author && (
     <div class="mt-5 flex items-center gap-2.5 text-sm text-muted">
       <Avatar author={author} size={24} />

@@ -33,23 +33,22 @@ export const siteConfig = {
     contact: "",
   },
 
-  socials: [
-    { label: "X", href: "https://x.com/", icon: "twitter-x" },
-    { label: "Bluesky", href: "https://bsky.app/", icon: "bluesky" },
-    { label: "GitHub", href: "https://github.com/xocothemes/quietpages", icon: "github" },
-  ] satisfies SocialLink[],
+  socials: [{ label: "X", href: "https://x.com/", icon: "twitter-x" }] satisfies SocialLink[],
+
+  showAudio: true,
 };
 
 export const navigation: NavLink[] = [
   { label: "Writing", href: "/blog/" },
-  { label: "Sections", href: "/categories/" },
-  { label: "Contributors", href: "/authors/" },
-  { label: "About", href: "/about/" },
+  { label: "Enlighteners", href: "/enlighteners/" },
+  { label: "Koans", href: "/koans/" },
+  { label: "Pagodas", href: "/pagodas/" },
 ];
 
 export const footerLinks: NavLink[] = [
   { label: "Archive", href: "/blog/" },
   { label: "Contributors", href: "/authors/" },
+  { label: "Categories", href: "/categories/" },
   { label: "Tags", href: "/tags/" },
   { label: "About", href: "/about/" },
   { label: "Contact", href: "/contact/" },

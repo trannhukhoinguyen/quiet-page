@@ -1,0 +1,782 @@
+---
+import "@/styles/wiki-type/layout.wiki.css"
+import Layout from "@/layouts/BaseLayout.astro";
+import Sidebar from "@/components/wiki-type/enlightener/SidebarEnlightener.astro";
+import EnlightenerMeanTree from "@/components/wiki-type/enlightener/EnlightenerMeanTree.astro";
+import EnlightenerMantraTree from "@/components/wiki-type/enlightener/EnlightenerMantraTree.astro";
+import EnlightenerDiscipleTree from "@/components/wiki-type/enlightener/EnlightenerDiscipleTree.astro";
+import TableOfContents from "@/components/wiki-type/TableOfContents.astro";
+import { siteConfig } from "@/config/site.ts";
+import schema from "@/data/schema.astro";
+import SEO from "@/components/page/SEO.astro";
+import { l } from "@/utils/constants.ts";
+import { getCollection, z } from "astro:content";
+import JourneyTimeline from "@/components/atlas/JourneyTimeline.astro";
+import AudioPlayer from "@/components/ui/minrock-style/AudioPlayer.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  category?: string;
+  currentSlug?: string;
+  headings?: {
+      depth: number;
+      slug: string;
+      text: string;
+  }[];
+  articleData?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+    tags?: string[];
+    readTimeMinutes?: number;
+    birthDeath?: string;
+    extraNames?: string;
+    zenSchool?: string[];
+    teachers?: string[];
+    places?: string[];
+    koans?: {
+      title: string;
+      slug: string;
+      shortTitle: string;
+    }[];
+  };
+  navigationData?: {
+      previous?: { title: string; href: string };
+      next?: { title: string; href: string };
+  };
+  relatedArticles?: {
+    title: string;
+    description: string;
+    href: string;
+  }[];
+  tabLabels?: string[] | [];
+  videoIds?: string[] | [];
+  mantras?: string[];
+  means?: {
+    title: string;
+    slug?: string;
+    description?: string;
+  }[];
+  disciples?: {
+    name_vi: string;
+    slug?: string;
+    name_en?: string,
+    name_zh?: string,
+    name_jp?: string,
+    name_kr?: string,
+  }[];
+  activeTab?: string;
+  showThisAudio?: Boolean;
+}
+
+const {
+  title,
+  description,
+  category,
+  currentSlug,
+  headings = [],
+  articleData,
+  navigationData,
+  relatedArticles = [],
+  tabLabels = [],
+  videoIds = [],
+  means = [],
+  mantras = [],
+  disciples = [],
+  activeTab = 'main', // <--- Lấy giá trị activeTab truyền vào (mặc định là 'main')
+  showThisAudio = true,
+} = Astro.props;
+
+const breadcrumbItems: { label: string; href?: string }[] = [
+    { label: "Home", href: "/" },
+    { label: "Giác giả", href: "/enlighteners" },
+];
+
+if (category) {
+    breadcrumbItems.push({
+        label: category,
+        href: `/enlighteners/category/${category?.toLowerCase().replace(/\s+/g, "-")}`,
+    });
+}
+
+breadcrumbItems.push({ label: title });
+
+const lastUpdatedLabel = articleData?.modifiedTime
+    ? new Intl.DateTimeFormat("vi-VN", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+      }).format(new Date(articleData.modifiedTime))
+    : null;
+
+const defaultImage = "/images/backgrounds/Buddha-zen.avif";
+
+// Lấy param [lang] từ URL động của Astro (mặc định là 'vi' nếu không khớp)
+const { lang = 'vi' } = Astro.params;
+const showAudio = siteConfig.showAudio !== false;
+---
+
+<Layout title={title} description={description}>
+
+  <header class="article-header">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon-new.ico" sizes="48x48" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon-new.ico" sizes="48x48" type="image/x-icon">
+
+    <!--PWA manifest-->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#d4af37" />
+
+    <script is:inline src="/theme-init.js"></script>
+
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+
+    <SEO
+      title={title}
+      description={description}
+      image={defaultImage}
+      type={"article"}
+      publishedTime={new Date().toISOString()}
+      canonical={new URL(Astro.url.pathname, siteConfig.siteUrl).href}
+    />
+
+
+    <div class="article-header-overlay"></div>
+
+    <div class="container-wide header-content">
+      <nav aria-label="Breadcrumb" class="breadcrumb-nav">
+        <ol class="breadcrumb-list">
+          {
+            breadcrumbItems.map((item, index) => (
+              <li class="breadcrumb-item">
+                {index > 0 && <span class="breadcrumb-separator">/</span>}
+                {item.href ? (
+                  <a href={item.href} class="breadcrumb-link">
+                    {item.label}
+                  </a>
+                ) : (
+                  <span class="breadcrumb-current">{item.label}</span>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <h1 class="article-title">
+        {title}
+      </h1>
+      <div class="article-meta">
+        {
+          articleData?.koans?.length
+            ? (<div class="meta-item">{
+              articleData?.koans?.map(koan => (<span class="meta-sub-item">👤</span><a href={`/koans/${koan.slug}`} target="_blank" title={koan.title}>{koan.shortTitle}</a>))
+            }</div>)
+            : ''
+        }
+
+        {
+          articleData?.birthDeath
+            ? (<div class="meta-item" title="Năm Sinh - Năm Mất"><span class="meta-sub-item">📆</span><span>{articleData?.birthDeath}</span></div>)
+            : ''
+        }
+        {
+          articleData?.extraNames
+            ? (<div class="meta-item" title="Tên Pinyin - Tên Trung - Tên Nhật"><span>{articleData?.extraNames}</span></div>)
+            : ''
+        }
+        {
+          articleData?.zenSchool?.length
+            ? (<div class="meta-item"><span class="meta-sub-item">🪔</span><a href={`/blogs/cac-tong-phai-thien-tong`} target="_blank">{articleData?.zenSchool?.join(', ')}</a></div>)
+            : ''
+        }
+        {
+          articleData?.places?.length
+            ? (<div class="meta-item"><span class="meta-sub-item">🧭</span><span>{articleData?.places?.join(', ')}</span></div>)
+            : ''
+        }
+        {
+          articleData?.teachers?.length
+            ? (<div class="meta-item" title="Sư phụ">{
+              articleData?.teachers?.map(teacher => (<span class="meta-sub-item">👤</span><a href={`/enlighteners/${teacher.split(' ').join('-')}`} target="_blank">{teacher}</a>))
+            }</div>)
+            : ''
+        }
+
+        {
+          articleData?.modifiedTime && (
+            <>
+              <div class="meta-item">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="meta-icon"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                <span>
+                                    {new Date(articleData.modifiedTime).toLocaleDateString("vi-VN", {
+                                      month: "long",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })}
+                                </span>
+              </div>
+            </>
+          )
+        }
+
+        <div class="meta-item">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="meta-icon"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <span>
+              {articleData?.readTimeMinutes || 3} {l("min.read", lang)}
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div
+    class="container-wide main-wrapper"
+    x-data="{ sidebarOpen: false }"
+  >
+    <!-- Mobile Sidebar Backdrop -->
+    <div
+      x-show="sidebarOpen"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100"
+      x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="opacity-0"
+      @click="sidebarOpen = false"
+      class="mobile-backdrop"
+      style="display: none;"
+    >
+    </div>
+
+    <!-- Mobile Sidebar Content -->
+    <div
+      x-show="sidebarOpen"
+      x-transition:enter="transition ease-out duration-300"
+      x-transition:enter-start="-translate-x-full"
+      x-transition:enter-end="translate-x-0"
+      x-transition:leave="transition ease-in duration-200"
+      x-transition:leave-start="translate-x-0"
+      x-transition:leave-end="-translate-x-full"
+      class="mobile-sidebar"
+      style="display: none;"
+    >
+      <div class="mobile-sidebar-header">
+        <span class="mobile-sidebar-title">Navigation</span>
+        <button
+          type="button"
+          @click="sidebarOpen = false"
+          class="mobile-sidebar-close"
+          aria-label="Close navigation panel"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ><path d="M18 6 6 18"></path><path d="m6 6 12 12"
+          ></path></svg
+          >
+        </button>
+      </div>
+      <Sidebar currentSlug={currentSlug} />
+    </div>
+
+    <div class="layout-grid">
+      <!-- Mobile Sidebar Toggle -->
+      <div class="mobile-toggle-wrapper">
+        <button
+          type="button"
+          @click="sidebarOpen = true"
+          class="mobile-toggle-btn"
+          aria-label="Open documentation navigation"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ><rect width="18" height="18" x="3" y="3" rx="2"
+          ></rect><path d="M9 3v18"></path></svg
+          >
+          Menu Tài liệu
+        </button>
+      </div>
+
+      <!-- Left Sidebar -->
+      <aside class="desktop-sidebar-left">
+        <div class="sticky-wrapper">
+          <Sidebar currentSlug={currentSlug} />
+        </div>
+      </aside>
+
+      <!-- Main Content Area with Dynamic Tabs & Anchor URL Sync -->
+      <main
+        class="main-content"
+        data-pagefind-body
+        data-pagefind-filter={`category:${category}`}
+        x-data={`{
+          activeTab: '${activeTab}',
+          init() {
+            const article = this.$el.querySelector('article');
+            if (article) {
+              // 1. Kiểm tra xem phần Nguồn / Ghi chú có chứa thẻ a với href hợp lệ không
+              let hasValidLink = false;
+              article.querySelectorAll('a').forEach(a => {
+                const href = a.getAttribute('href');
+                if (href && href.trim() !== '' && href.trim() !== '#') {
+                  hasValidLink = true;
+                }
+              });
+    
+              if (hasValidLink) {
+                article.classList.add('has-footer-content');
+              } else {
+                article.classList.remove('has-footer-content');
+              }
+            }
+          }
+        }`}
+      >
+        <!-- Navigation Tabs -->
+        <div class="wiki-type-tabs-wrapper">
+          <nav class="wiki-type-tabs" aria-label="Tiêu đề Nội dung">
+            <!-- Nút Tab Chính -->
+            <a
+              href={`/enlighteners/${currentSlug}`}
+              class="zen-tab-btn"
+              class:list={{ 'active': activeTab === 'main' }}
+            >
+              <span title="Tổng Quan">📖</span>
+            </a>
+
+            {
+              tabLabels.map((label) => {
+                const lowerLabel = label.toLowerCase().trim();
+                const tabSlug = lowerLabel.replace(/\s+/g, "-");
+                let icon = "💬";
+                let longLabel = "Đối Thoại";
+
+                if (lowerLabel.includes("hanh-trang")) {
+                  icon = "🚩";
+                  longLabel = "Hành trạng";
+                } else if (lowerLabel.includes("doi-thoai")) {
+                  icon = "💬";
+                  longLabel = "Đối Thoại";
+                } else if (lowerLabel.includes("bai-giang")) {
+                  icon = "💡";
+                  longLabel = "Bài Giảng";
+                } else if (lowerLabel.includes("chan-ngon")) {
+                  icon = "📿";
+                  longLabel = "Chân Ngôn";
+                } else if (lowerLabel.includes("cau-chuyen")) {
+                  icon = "💫";
+                  longLabel = "Kể Chuyện";
+                } else if (lowerLabel.includes("phuong-tien-khai-thi")) {
+                  icon = "📚";
+                  longLabel = "Phương tiện khai thị";
+                }
+
+                return (
+                  <a
+                    href={`/enlighteners/${currentSlug}/${tabSlug}`}
+                    class="zen-tab-btn"
+                    class:list={{ 'active': activeTab === tabSlug }}
+                    title={longLabel}
+                  >
+                    {icon}
+                  </a>
+                );
+              })
+            }
+          </nav>
+        </div>
+
+        <!-- 🔊 Accessible Audio Player (Text-to-Speech) -->
+        {showAudio && showThisAudio && (
+          <AudioPlayer selector=".tab-panels-wrapper" title={title} label="Nghe nội dung" />
+        )}
+
+        <!-- Content Container -->
+        <div class="tab-panels-wrapper" :data-active-tab="activeTab" id="tab-content">
+
+          <!-- Nội dung chính (Tab 1 / Tổng quan) -->
+          <article
+            class={"prose prose-lg prose-sg"}
+          >
+            <!-- Nội dung tab Phương tiện khai thị (Hiển thị dạng cây Archive) -->
+            {
+              activeTab === 'phuong-tien-khai-thi' && means.length > 0 && (
+                <div class="tab-expedient-means">
+                  <EnlightenerMeanTree currentSlug={currentSlug} means={means} />
+                </div>
+              )
+            }
+            {
+              activeTab === 'chan-ngon' && means.length > 0 && (
+                <div class="tab-mantra" id="chan-ngon">
+                  <EnlightenerMantraTree mantras={mantras} />
+                </div>
+              )
+            }
+            {
+              activeTab === 'main' && disciples.length > 0 && (
+                <section>
+                  <EnlightenerDiscipleTree disciples={disciples} />
+                </section>
+              )
+            }
+
+            <slot />
+
+            {
+              activeTab === 'hanh-trang' && (
+                <div class="tab-hanh-trang" id="hanh-trang">
+                  <JourneyTimeline memories={undefined} />
+                </div>
+              )
+            }
+          </article>
+        </div>
+
+        <!-- Feedback Section -->
+        <div class="article-footer">
+          {
+            lastUpdatedLabel && (
+              <div class="last-updated">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m12 3 2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.7 6.7 19.1l1-5.8L3.5 9.2l5.9-.9L12 3Z"></path>
+                </svg>
+                <span>Cập nhật lần cuối lúc <b>{lastUpdatedLabel}</b></span>
+              </div>
+            )
+          }
+        </div>
+
+        {
+          (navigationData?.previous || navigationData?.next) && (
+            <nav
+              class="pagination-nav"
+              aria-label="Article Pagination"
+            >
+              {navigationData?.previous ? (
+                <a
+                  href={navigationData.previous.href}
+                  class="pagination-card pagination-prev"
+                >
+                  <span class="pagination-label">
+                    <span class="pagination-arrow">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    </span>
+                    {l("article.previous", lang)}
+                  </span>
+                  <p class="pagination-title">
+                    {navigationData.previous.title}
+                  </p>
+                </a>
+              ) : (
+                <div class="pagination-placeholder" aria-hidden="true"></div>
+              )}
+
+              {navigationData?.next && (
+                <a
+                  href={navigationData.next.href}
+                  class="pagination-card pagination-next"
+                >
+                  <span class="pagination-label">
+                    {l("article.next", lang)}
+                    <span class="pagination-arrow">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                      </svg>
+                    </span>
+                  </span>
+                  <p class="pagination-title">
+                    {navigationData.next.title}
+                  </p>
+                </a>
+              )}
+            </nav>
+          )
+        }
+      </main>
+
+      <!-- Right Sidebar (ToC) -->
+      {
+        headings.length > 0 && (
+          <aside class="desktop-sidebar-right">
+            <div class="sticky-wrapper">
+              <TableOfContents headings={headings} />
+            </div>
+          </aside>
+        )
+      }
+    </div>
+
+  </div>
+
+  {
+    relatedArticles.length > 0 && (
+      <section class="related-section">
+        <div class="container-wide">
+          <h3 class="related-title">
+            Các bài viết liên quan
+          </h3>
+          <div class="related-grid">
+            {relatedArticles.map((article) => (
+              <article class="related-card">
+                <a href={article.href} class="related-card-link">
+                  <h4 class="related-card-title">
+                    {article.title}
+                  </h4>
+                  <p class="related-card-desc">
+                    {article.description}
+                  </p>
+                  <span class="related-card-action">
+                      Đọc thêm
+                      <span class="related-card-arrow">
+                          &rarr;
+                      </span>
+                  </span>
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Thanh Tab Bar cố định dưới đáy chỉ hiện trên màn hình Mobile -->
+  <nav class="mobile-bottom-dock">
+    <!-- Tab Main (Trang chính) -->
+    <a href={`/enlighteners/${currentSlug}`} class={`dock-item ${activeTab === 'main' ? 'active' : ''}`}>
+      <span class="dock-icon">📖</span>
+      <span class="dock-label">Tổng Quan</span>
+    </a>
+
+    <!-- Các Tab Con động (Mantra, Dialogue, Sermon, Story...) -->
+    {
+      tabLabels.map((label) => {
+        const lowerLabel = label.toLowerCase().trim();
+        const tabSlug = lowerLabel.replace(/\s+/g, "-");
+        const isActive = activeTab === tabSlug;
+
+        let icon = "💬";
+        let longLabel = "Đối Thoại";
+
+        if (lowerLabel.includes("hanh-trang")) {
+          icon = "🚩";
+          longLabel = "Hành trạng";
+        } else if (lowerLabel.includes("doi-thoai")) {
+          icon = "💬";
+          longLabel = "Đối Thoại";
+        } else if (lowerLabel.includes("bai-giang")) {
+          icon = "💡";
+          longLabel = "Bài Giảng";
+        } else if (lowerLabel.includes("chan-ngon")) {
+          icon = "📿";
+          longLabel = "Chân Ngôn";
+        } else if (lowerLabel.includes("cau-chuyen")) {
+          icon = "💫";
+          longLabel = "Kể Chuyện";
+        } else if (lowerLabel.includes("phuong-tien-khai-thi")) {
+          icon = "📚";
+          longLabel = "Phương tiện khai thị";
+        }
+
+        return (
+          <a href={`/enlighteners/${currentSlug}/${tabSlug}`} class={`dock-item ${isActive ? 'active' : ''}`}>
+            <span class="dock-icon">{icon}</span>
+            <span class="dock-label">{longLabel}</span>
+          </a>
+        );
+      })
+    }
+  </nav>
+</Layout>
+
+
+<script>
+  document.querySelectorAll('.zen-tab-btn, .tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // Cuộn tab được click vào chính giữa container ngang của nó
+      e.currentTarget?.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+      });
+    });
+  });
+
+  /*Bắt sự kiện khi người dùng bấm vào nút mũi tên quay lại của footnote*/
+  document.addEventListener('click', (e) => {
+    // Kiểm tra xem người dùng có click vào nút backlink của footnote (thường có class hoặc href chứa #fnref)
+    const target = e.target.closest('a[href^="#fnref"], a.footnote-backref, a[data-footnote-backref]');
+    if (!target) return;
+
+    const href = target.getAttribute('href');
+    if (!href) return;
+
+    const refElement = document.querySelector(href);
+    if (!refElement) return;
+
+    // Tìm xem thẻ sup/ref này đang nằm ở tab nào
+    const parentTabContent = refElement.closest('.tab-expedient-means, .tab-mantra, .tab-story, .tab-dialogue, .tab-sermon');
+    let targetTab = 'main';
+
+    if (parentTabContent) {
+      if (parentTabContent.classList.contains('tab-dialogue')) {
+        targetTab = 'doi-thoai';
+      } else if (parentTabContent.classList.contains('tab-sermon')) {
+        targetTab = 'bai-giang';
+      } else if (parentTabContent.classList.contains('tab-mantra')) {
+        targetTab = 'chan-ngon';
+      } else if (parentTabContent.classList.contains('tab-story')) {
+        targetTab = 'cau-chuyen';
+      } else if (parentTabContent.classList.contains('tab-expedient-means')) {
+        targetTab = 'phuong-tien-khai-thi';
+      }
+    }
+
+    // other tabs
+    const otherTabContent = refElement.closest('.part-1, .part-2, .part-3, .part-4, .part-5, .part-6, .part-7, .part-8, .part-9, .part-10');
+
+    if (otherTabContent) {
+      let i;
+      switch (parentTabContent.classList.contains(`part-${i}`)) {
+        case parentTabContent.classList.contains(`part-${i}`):
+          targetTab = `part-${i}`;
+          break;
+      }
+    }
+
+    // Lấy Alpine component instance của main content
+    const mainEl = document.querySelector('main.main-content');
+    if (mainEl && window.Alpine) {
+      const alpineData = window.Alpine.$data(mainEl);
+      if (alpineData && typeof alpineData.switchTab === 'function') {
+        e.preventDefault(); // Ngăn trình duyệt nhảy thô
+
+        // Chuyển tab về đúng tab chứa footnote ref
+        alpineData.switchTab(targetTab);
+
+        // Đợi DOM render hiển thị tab xong thì cuộn mượt về đúng vị trí
+        setTimeout(() => {
+          refElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          history.replaceState(null, '', `#${targetTab}`);
+        }, 50);
+      }
+    }
+  });
+</script>
+
+<style>
+  /* --- Mobile Bottom Navigation Bar (Dock) --- */
+  .mobile-bottom-dock {
+    display: none; /* Mặc định ẩn trên Desktop / Tablet lớn */
+  }
+
+  /* Chỉ kích hoạt khi màn hình dưới 768px (Mobile) */
+  @media screen and (max-width: 768px) {
+    .mobile-bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: var(--sgkb-bg, #ffffff);
+      border-top: 1px solid var(--sgkb-border, #eaeaea);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+      padding-bottom: env(safe-area-inset-bottom); /* Hỗ trợ tai thỏ iPhone */
+    }
+
+    .dock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--sgkb-text-muted, #888);
+      flex: 1;
+      height: 100%;
+      transition: color 0.2s ease;
+    }
+
+    .dock-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .dock-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* Trạng thái khi đang Active (đang ở tab đó) */
+    .dock-item.active {
+      color: var(--sgkb-primary, #b22222); /* Màu chủ đạo của trang */
+    }
+
+    /* Thêm khoảng trống phía dưới body để nội dung không bị thanh dock che mất */
+    body {
+      padding-bottom: 70px;
+    }
+  }
+</style>
